@@ -1,7 +1,6 @@
 import jax
 import jax.numpy as jnp
 import flax.nnx as nnx
-import einops
 from common import AttentionBlock, ResidualBlock
 
 """
@@ -62,7 +61,7 @@ class Encoder(nnx.Module):
         self.groupnorm = nnx.GroupNorm(num_features=512, num_groups=32, rngs=rngs)
 
         # SiLU
-        # 512 -> 8 (2 x 8)
+        # 512 -> 8 -> (2 x 8)
         self.conv5 = nnx.Conv(in_features=512, out_features=8, kernel_size=(3,3), padding=1, rngs=rngs)
         self.conv6 = nnx.Conv(in_features=8, out_features=8, kernel_size=(1,1), padding=0, rngs=rngs)
 
@@ -76,9 +75,30 @@ class Encoder(nnx.Module):
         latent (z): (B, H/8, W/8, 4)
         """
 
-        x = self
+        x = self.conv1(x)
+        x = self.res1(x)
+        x = self.res2(x)
+        x = self.conv2(x)
+        x = self.res3(x) 
+        x = self.res4(x)
+        x = self.conv3(x)
+        x = self.res5(x)
+        x = self.res6(x)
+        x = self.conv4(x)
+        x = self.res7(x)
+        x = self.res8(x)
+        x = self.res9(x)
+        x = self.attention(x)
+        x = self.res10(x)
+        x = self.groupnorm(x)
+        x = nnx.silu(x)
+        x = self.conv5
+        x = self.conv6
 
+        mean, log_var = jnp.split(x, 2, axis=1)
 
+def pad_asymmetric(x):
+    return jnp.pad(x, ((0, 0), (0, 0), (0, 1), (0, 1)), mode='constant', constant_values=0)
 
 
 
