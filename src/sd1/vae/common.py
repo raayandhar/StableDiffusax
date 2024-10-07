@@ -4,13 +4,18 @@ import jax.numpy as jnp
 import einops
 from attention import SelfAttention
 
+"""
+Dimension key:
+(missing!)
+"""
+
 class ResidualBlock:
     def __init__(self, in_features: int, out_features: int, rngs: nnx.Rngs):
         self.gn1 = nnx.GroupNorm(num_features=in_features, num_groups=32, rngs=rngs)
         self.conv1 = nnx.Conv(in_features=in_features, out_features=out_features, kernel_size=(3,3), padding=1, rngs=rngs)
 
         self.gn2 = nnx.GroupNorm(num_features=out_features, num_groups=32, rngs=rngs)
-        self.conv2 = nnx.Conv(in_features=in_features, out_features=out_features, kernel_size=(3,3), padding=1, rngs=rngs)
+        self.conv2 = nnx.Conv(in_features=out_features, out_features=out_features, kernel_size=(3,3), padding=1, rngs=rngs)
 
         if in_features != out_features:
             self.shortcut = nnx.Conv(in_features=in_features, out_features=out_features, kernel_size=(1,1), padding=0, rngs=rngs)

@@ -20,7 +20,7 @@ class SelfAttention(nnx.Module):
         self.in_proj = nnx.Linear(in_features=d_embed, out_features=3*d_embed, use_bias=in_proj_bias, rngs=rngs)
         self.out_proj = nnx.Linear(in_features=d_embed, out_features=d_embed, use_bias=out_proj_bias, rngs=rngs)
 
-    def __call__(self, x_BLD, *, causal_mask=False):
+    def __call__(self, x_BLD,  causal_mask=False):
         B, L, D = jnp.shape(x_BLD)
         H = self.n_heads
         K = self.d_head # K = D // H
